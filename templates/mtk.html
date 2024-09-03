@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTK</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="wopen.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh">
+    {% include "zoom.html" %}
+    {{ mtk | safe }}
+    <div id="mtkdata" style="display: none;">
+        <div id="data"></div>
+        <button id="closebtn">close</button>
+    </div>
+    <script>
+        var isstoped = false;
+        var ch = "";
+
+        async function doshit() {
+            let response = await fetch('/api/getchdata/' + ch);
+            let text = await response.text();
+            $("#data").html("=== " + ch + " ===<br>" + text.replace("\n", "<br>"))
+            if (!isstoped) {
+                setTimeout(() => { doshit() }, 100);
+            }
+        }
+
+        function start(ch_) {
+            if (ch_ != "") {
+                console.log(ch_);
+                ch = ch_;
+                $("#data").html("wait...");
+                $("#mtkdata").css("display", "block");
+                doshit();
+            }
+        }
+
+        function end() {
+            isstoped = true;
+            $("#mtkdata").css("display", "none");
+        }
+
+        $(".mtk td").each(function(index) {
+            $(this).click(() => {
+                start($(this).text());
+            });
+        });
+
+        $("#closebtn").click(() => {
+            end();
+        });
+    </script>
+</body>
+</html>

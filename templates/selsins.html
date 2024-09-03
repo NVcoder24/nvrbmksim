@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SELSINS</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="wopen.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh">
+    {% include "zoom.html" %}
+    <table id="selsins" class="mainelement">
+        <tr><td>wait...</td></tr>
+    </table>
+    <script>
+        async function doshit() {
+            let response = await fetch('/api/getselsins/');
+            let text = await response.text();
+            $("#selsins").html(text);
+            setTimeout(() => { doshit() }, 100);
+        }
+
+        doshit();
+    </script>
+</body>
+</html>

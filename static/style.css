@@ -1,0 +1,169 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    overflow: auto;
+}
+
+.mtk {
+    border-collapse: collapse;
+}
+
+.mtk td {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+    line-height: 40px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mtk td:hover {
+    filter: brightness(.9);
+}
+
+#mtkdata {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 1);
+    padding: 10px;
+    border: 2px solid #000;
+    z-index: 999;
+}
+
+.zoom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 1);
+    padding: 5px;
+    border: 2px solid #000;
+    z-index: 999;
+    display: flex;
+    opacity: .5;
+}
+
+.zoom:hover {
+    opacity: 1;
+}
+
+#selsins td {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+}
+
+#selsins .selsin {
+    background: #e8e8e8;
+    border-radius: 100%;
+}
+
+#selsins td .pos {
+    font-size: 21px;
+}
+
+#selsins td span {
+    position: absolute;
+    width: 50px;
+    display: block;
+    transform: translateY(23px);
+}
+
+.selsin .posind1, .posind2 {
+    position: absolute;
+    width: 50px;
+    display: block;
+}
+
+.selsin .posind1 {
+    transform: translateY(-19px);
+    color: red;
+}
+
+.selsin .posind2 {
+    transform: translateY(6px);
+    color: green;
+}
+
+.nplamps {
+    display: flex;
+    column-gap: 10px;
+}
+
+.nplamps .lamp {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 60px;
+    height: 60px;
+    border: solid 1px #000;
+    background: #fff;
+    filter: brightness(.8);
+}
+
+.nplamps .last {
+    background: yellow;
+}
+
+.nplamps .on {
+    filter: brightness(1);
+}
+
+#np td {
+    width: 30px;
+    height: 30px;
+    font-size: 10px;
+    text-align: center;
+}
+
+#np .btn {
+    cursor: pointer;
+    border: 1px solid #000;
+}
+
+#np .btn:hover {
+    filter: brightness(.9);
+}
+
+#np .w {
+    background: rgb(231, 231, 231);
+}
+
+#np .r {
+    background: rgb(170, 32, 34);
+}
+
+#np .c {
+    background: rgb(0, 143, 156);
+}
+
+#np .b {
+    background: rgb(0, 62, 100);
+}
+
+#np .y {
+    background: rgb(239, 243, 18);
+}
+
+#np .on {
+    filter: brightness(1.5)!important;
+}
+
+#npjoystick {
+    position: fixed;
+    left: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;
+}
+
+#npjoystick button {
+    width: 50px;
+    height: 50px;
+}

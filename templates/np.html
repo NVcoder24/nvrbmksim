@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NP</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="wopen.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+</head>
+<body style="display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;">
+    {% include "zoom.html" %}
+    <div id="npjoystick">
+        <button id="npup">Вверх</button>
+        <button id="npdown">Вниз</button>
+        <button style="margin-top: 10px; border-radius: 100%" onclick="resetnp();">СБРОС</button>
+    </div>
+    <div id="nplamps" class="nplamps">
+        {{ nplamps | safe }}
+    </div>
+    <br>
+    <table id="np" class="mainelement">
+        {{ np | safe }}
+    </table>
+    <script>
+        var postoele = {}
+        var lastshit = []
+
+        function cmpshit(was, became) {
+            let removed = [];
+            let added = [];
+            for (let i = 0; i < was.length; i ++) {
+                if (!became.includes(was[i])) {
+                    removed.push(was[i]);
+                }
+            }
+            for (let i = 0; i < became.length; i ++) {
+                if (!was.includes(became[i])) {
+                    added.push(became[i]);
+                }
+            }
+            return [removed, added];
+        }
+
+        $(".btn").each(function(index) {
+            let t = $(this).text();
+            if (t != "") {
+                postoele[t] = this;
+            }
+        });
+
+        async function c(n) { let response = await fetch('/api/npdoshit/' + n); }
+        async function resetnp() { let response = await fetch('/api/resetnp/'); }
+        async function startup() { let response = await fetch('/api/npstartup/'); }
+        async function stopup() { let response = await fetch('/api/npstopup/'); }
+        async function startdown() { let response = await fetch('/api/npstartdown/'); }
+        async function stopdown() { let response = await fetch('/api/npstopdown/'); }
+
+        $("#npup").mousedown(() => { startup(); });
+        $("#npup").mouseup(() => { stopup(); });
+        $("#npup").mouseleave(() => { stopup(); });
+
+        $("#npdown").mousedown(() => { startdown(); });
+        $("#npdown").mouseup(() => { stopdown(); });
+        $("#npdown").mouseleave(() => { stopdown(); });
+
+        async function doshit() {
+            let response = await fetch('/api/getnp/');
+            let text = await response.json();
+            //$("#np").html(text);
+            //$("#nplamps").html(text);
+            let cmp = cmpshit(lastshit, text);
+            let removed = cmp[0];
+            let added = cmp[1];
+            lastshit = text;
+            $($(".lamp")[0]).toggleClass("on", text.length == 1);
+            $($(".lamp")[1]).toggleClass("on", text.length == 2);
+            $($(".lamp")[2]).toggleClass("on", text.length == 3);
+            $($(".lamp")[3]).toggleClass("on", text.length == 4);
+            $($(".lamp")[4]).toggleClass("on", text.length >= 5);
+            removed.forEach((n) => {
+                $(postoele[n]).removeClass("on");
+            });
+            added.forEach((n) => {
+                $(postoele[n]).addClass("on");
+            });
+            //console.log("added: ", added);
+            //console.log("removed: ", removed);
+            setTimeout(() => { doshit() }, 100);
+        }
+
+        doshit();
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<div class="zoom">
+    <input type="range" id="zoomi" min=".1" max="2" step=".01" value="1">
+    <p id="zoomamount">x1</p>
+</div>
+<!--<div style="z-index: 999999; position: fixed; display:flex; justify-content: center; align-items: center; width: 100%; height: 100vh; background: #000;">
+    <h1 style="color: red">ВЫ ВЗОРВАЛИ РИАКТАР</h1>
+</div>-->
+<script>
+    $("#zoomi").on("input", function() {
+        $(".mainelement").css("zoom", $("#zoomi").val());
+        $("#zoomamount").text("x" + $("#zoomi").val());
+    });
+</script>
