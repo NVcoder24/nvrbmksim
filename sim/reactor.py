@@ -28,8 +28,8 @@ SIM_RES_Y = 7
 AZ_H = 7
 ONE_LVL_H = AZ_H / SIM_RES_Y
 
-NEUTR_MUL = 2
-BASE_NEUTR = 2
+NEUTR_MUL = 1
+BASE_NEUTR = 1
 
 MAX_BLOCK_ROD = .2
 
@@ -66,7 +66,7 @@ class ch_fuel(ch):
     def __init__(self) -> None:
         super().__init__()
         self.infl = []
-        self.Kcoef = []
+        self.Kcoef = [1] * SIM_RES_Y
 
 class ch_rod(ch):
     def __init__(self) -> None:
@@ -307,6 +307,8 @@ def updatesim():
 
                     # Kcoef formula
                     Kcoef = 1 + .2 - rod_block_coef * .3
+
+                    reactor[y][x].Kcoef[lvl] = Kcoef
 
                     # calculate new neutron count for cell
                     neutr_population[y][x][lvl] += (neutr_population[y][x][lvl] + BASE_NEUTR) * (Kcoef - 1) * NEUTR_MUL * DT
