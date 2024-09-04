@@ -27,6 +27,13 @@
                 setTimeout(() => { doshit() }, 100);
             }
         }
+        
+        async function doshit2() {
+            let response = await fetch('/api/getmtk/');
+            let text = await response.text();
+            $(".mtk").html(text);
+            setTimeout(() => { doshit2() }, 100);
+        }
 
         function start(ch_) {
             if (ch_ != "") {
@@ -52,6 +59,8 @@
         $("#closebtn").click(() => {
             end();
         });
+
+        setTimeout(() => { doshit2() }, 100);
     </script>
 </body>
 </html>

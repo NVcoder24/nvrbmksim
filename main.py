@@ -1,5 +1,8 @@
 import math
 import sim.reactor as reactor_sim
+from gradpyent.gradient import Gradient
+
+is_az_5 = False
 
 mtk_colors = []
 
@@ -254,25 +257,49 @@ def am(): return render_template("AM.html")
 @app.route("/ass")
 def ass(): return render_template("ASS.html")
 
+def interpolatecolor(start, finish, n):
+    return [start[0] + (finish[0] - start[0]) * n,
+     start[1] + (finish[1] - start[1]) * n,
+     start[2] + (finish[2] - start[2]) * n]
+
+def calcshitgrad(n):
+    c1 = [0,255,0]
+    c2 = [255,255,255]
+    c3 = [255,0,0]
+    if n == 1: return c2
+    elif n < 1: return interpolatecolor(c2, c1, (1 - n) * 2)
+    else: return interpolatecolor(c2, c3, (n - 1) * 2)
+
 @app.route("/mtk")
 def mtk_():
     mtk = "<table border='#ccc' class='mtk mainelement'>"
+    y = -1
     for i in reactor.reactor:
+        y += 1
         mtk += "<tr>"
+        x = -1
         for j in i:
+            x += 1
             mtk += "<td style='background: "
             if j == None:
                 mtk += "#ccc"
                 mtk += ";'></td>"
             else:
-                if j.mtkcolor == "w":
+                """if j.mtkcolor == "w":
                     mtk += "#fff"
                 elif j.mtkcolor == "y":
                     mtk += "yellow"
                 elif j.mtkcolor == "g":
                     mtk += "green"
                 else:
-                    mtk += "#ccc"
+                    mtk += "#ccc"""
+                c = "#ccc"
+                try:
+                    gg = calcshitgrad(sum(reactor_sim.reactor[y][x].Kcoef) / 7)
+                    c = f"rgb({gg[0]},{gg[1]},{gg[2]})"
+                except Exception as e:
+                    pass
+                mtk += c
                 mtk += f";'>{ j.posstr }</td>"
         mtk += "</tr>"
     mtk += "</table>"
@@ -314,6 +341,40 @@ def np_():
 def api_getchdata(ch):
     return (f"=== REACTOR ===\n{reactor_sim.last_reactor_log}\n=== CH ===\n" + "").replace("\n", "<br>")
 
+@app.route("/api/getmtk/")
+def api_getmtk():
+    mtk = ""
+    y = -1
+    for i in reactor.reactor:
+        y += 1
+        mtk += "<tr>"
+        x = -1
+        for j in i:
+            x += 1
+            mtk += "<td style='background: "
+            if j == None:
+                mtk += "#ccc"
+                mtk += ";'></td>"
+            else:
+                """if j.mtkcolor == "w":
+                    mtk += "#fff"
+                elif j.mtkcolor == "y":
+                    mtk += "yellow"
+                elif j.mtkcolor == "g":
+                    mtk += "green"
+                else:
+                    mtk += "#ccc"""
+                c = "#ccc"
+                try:
+                    gg = calcshitgrad(sum(reactor_sim.reactor[y][x].Kcoef) / 7)
+                    c = f"rgb({gg[0]},{gg[1]},{gg[2]})"
+                except Exception as e:
+                    pass
+                mtk += c
+                mtk += f";'>{ j.posstr }</td>"
+        mtk += "</tr>"
+    return mtk
+
 @app.route("/api/getselsins/")
 def api_getselsins():
     s = ""
@@ -350,6 +411,12 @@ def api_npdoshit(s):
 def api_getnp():
     return jsonify(selected_rods)
 
+@app.route("/api/toggleaz/")
+def api_toggleaz():
+    global is_az_5
+    is_az_5 = not is_az_5
+    return "ON" if is_az_5 else "OFF"
+
 @app.route("/api/resetnp/")
 def api_resetnp():
     global selected_rods
@@ -380,9 +447,13 @@ def SUZ_THREAD():
         # SUZ
         dt = time.time() - lastdt
         lastdt = time.time()
-        for i in selected_rods:
-            i1, i2 = reactor.getchibypos(i)
-            reactor.reactor[i1][i2].setpos(reactor.reactor[i1][i2].pos + .5 * np_joystick * dt)
+        if is_az_5:
+            for i in reactor_sim.rod_coords:
+                reactor.reactor[i[1]][i[0]].setpos(reactor.reactor[i[1]][i[0]].pos + .5 * 2.5 * dt)
+        else:
+            for i in selected_rods:
+                i1, i2 = reactor.getchibypos(i)
+                reactor.reactor[i1][i2].setpos(reactor.reactor[i1][i2].pos + .5 * np_joystick * dt)
 
         # COPY SUZ POS
         for i in reactor_sim.rod_coords:
