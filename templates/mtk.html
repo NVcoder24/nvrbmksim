@@ -22,7 +22,14 @@
         async function doshit() {
             let response = await fetch('/api/getchdata/' + ch);
             let text = await response.text();
-            $("#data").html("=== " + ch + " ===<br>" + text.replace("\n", "<br>"))
+            $("#data").html("=== " + ch + " ===<br>" + text.replace("\n", "<br>"));
+            // TODO: replace with onclick or some other lower memory
+            //       problems solution
+            $(".mtk td").each(function(index) {
+                $(this).click(() => {
+                    start($(this).text());
+                });
+            });
             if (!isstoped) {
                 setTimeout(() => { doshit() }, 100);
             }
