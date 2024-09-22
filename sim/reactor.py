@@ -75,6 +75,7 @@ class ch_rod(ch):
         self.block_len = 6.790
         self.accel_len = 4.5
         self.bottom_pos = self.bottom_min_out
+        self.prevpos = self.bottom_pos
 
 class ch_usp(ch_rod):
     def __init__(self) -> None:
@@ -83,6 +84,7 @@ class ch_usp(ch_rod):
         self.block_len = 6.7
         self.accel_len = 0
         self.bottom_pos = self.bottom_min_out
+        self.prevpos = self.bottom_pos
 
 # HEIGHTS OF SIMULATION LEVELS
 lvl_h = [AZ_H / SIM_RES_Y / 2] + [AZ_H / SIM_RES_Y / 2 + AZ_H / SIM_RES_Y * i for i in range(1, SIM_RES_Y)]
@@ -251,6 +253,11 @@ def count_neutr():
                     all_neutr += i
     return all_neutr
 
+def minmax(n , mi, ma):
+    if n > ma: return ma
+    if n < mi: return mi
+    return n
+
 last_tick = 0
 last_global_k = 1
 last_reactor_log = ""
@@ -286,12 +293,15 @@ def updatesim():
 
                     # calculate control rods blocking coef
                     block_coefs = []
+                    accel_coefs = []
                     sum_div = 0
+                    sum_div_accel = 0
                     for infl in reactor[y][x].infl:
                         for_shits += 1
-                        rod = reactor[infl[0]][infl[1]]
+                        rod = reactor[infl[1]][infl[0]]
                         i = infl[2]
                         sum_div += i
+
                         rod_bottom_out = rod.bottom_pos
                         rod_top_out = rod.bottom_pos + rod.block_len
                         # TODO: REPLACE 4 IFs WITH SINGLE EXPRESSION
@@ -303,10 +313,27 @@ def updatesim():
                             block_coefs.append((rod_top_out - lvl_bottoms[lvl]) / ONE_LVL_H * i)
                         else:
                             block_coefs.append((lvl_tops[lvl] - rod_bottom_out) / ONE_LVL_H * i)
+
+                        accel_bottom_out = rod.bottom_pos - rod.accel_len
+                        accel_top_out = rod.bottom_pos
+                        accel_infl_koef = 0
+                        if rod.prevpos > rod.bottom_pos and rod.bottom_pos > .1:
+                            accel_infl_koef = 1
+                        # TODO: REPLACE 4 IFs WITH SINGLE EXPRESSION
+                        if accel_bottom_out < lvl_bottoms[lvl] and accel_top_out > lvl_tops[lvl]:
+                            accel_coefs.append(1 * i * accel_infl_koef)
+                        elif accel_bottom_out > lvl_tops[lvl] or accel_top_out < lvl_bottoms[lvl]:
+                            accel_coefs.append(0)
+                        elif lvl_bottoms[lvl] < accel_top_out and accel_top_out < lvl_tops[lvl]:
+                            accel_coefs.append((accel_top_out - lvl_bottoms[lvl]) / ONE_LVL_H * i * accel_infl_koef)
+                        else:
+                            accel_coefs.append((lvl_tops[lvl] - accel_bottom_out) / ONE_LVL_H * i * accel_infl_koef)
+
                     rod_block_coef = sum(block_coefs) / sum_div
+                    rod_accel_coef = sum(accel_coefs) / sum_div
 
                     # Kcoef formula
-                    Kcoef = 1 + .2 - rod_block_coef * .3
+                    Kcoef = 1 + .2 - rod_block_coef * .3 + rod_accel_coef * .1
 
                     reactor[y][x].Kcoef[lvl] = Kcoef
 
@@ -314,6 +341,8 @@ def updatesim():
                     neutr_population[y][x][lvl] += (neutr_population[y][x][lvl] + BASE_NEUTR) * (Kcoef - 1) * NEUTR_MUL * DT
                     if neutr_population[y][x][lvl] < 0:
                         neutr_population[y][x][lvl] = 0
+    for i in rod_coords:
+        reactor[i[1]][i[0]].prevpos = reactor[i[1]][i[0]].bottom_pos
 
 
     c = count_neutr()

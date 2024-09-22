@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTK</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="wopen.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <style>td {width: 40px !important; height: 100px!important;}
+        * {box-sizing: border-box;}
+    </style>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; overflow-y: scroll">
+    {% include "watermark.html" %}
+    {% include "zoom.html" %}
+    {{ mtk | safe }}
+    <div id="mtkdata">
+        <div id="data">
+            <h2>SELECT Y</h2>
+            <input type="range" name="" step="1" min="0" max="47" id="pizda2">
+            <select name="" id="pizda">
+                {{ sel | safe }}
+            </select>
+        </div>
+    </div>
+    <script>
+        var shit = "0";
+
+        async function doshit2() {
+            let response = await fetch(`/api/getmtk2/${shit}`);
+            let text = await response.text();
+            $(".mtk").html(text);
+            setTimeout(() => { doshit2() }, 0);
+        }
+
+        $("#pizda").on("change", () => {
+            shit = $("#pizda").val();
+            $("#pizda2").val(shit);
+        });
+
+        async function doupdfast() {
+            let response = await fetch(`/api/getmtk2/${shit}`);
+            let text = await response.text();
+            $(".mtk").html(text);
+        }
+
+        $("#pizda2").on("propertychange input", () => {
+            shit = $("#pizda2").val();
+            $("#pizda").val(shit);
+            //doupdfast();
+        });
+
+        $("#pizda2").val(shit);
+        $("#pizda").val(shit);
+
+        setTimeout(() => { doshit2() }, 0);
+    </script>
+</body>
+</html>

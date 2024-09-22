@@ -7,6 +7,14 @@ body {
     overflow: auto;
 }
 
+#watermark {
+    position: fixed;
+    opacity: .1;
+    z-index: -1;
+    bottom: 0;
+    left: 0;
+}
+
 .mtk {
     border-collapse: collapse;
 }
@@ -166,4 +174,19 @@ body {
 #npjoystick button {
     width: 50px;
     height: 50px;
+}
+
+.rod {
+    position: absolute;
+    z-index: 999;
+}
+
+.rod .blk {
+    background: green;
+    width: 20px;
+}
+
+.rod .acc {
+    background: red;
+    width: 20px;
 }

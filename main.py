@@ -25,6 +25,12 @@ with open("mtkcolors.csv", "r") as f:
                 else:
                     mtk_colors[y - 1].append(l[x].strip())
 
+#========================================
+#          THIS PART OF CODE
+#          IS DEPRECATED
+#          AND IS USED ONLY BY
+#          OLD CODE
+#========================================
 class ch:
     def __init__(self, mtkcolor, posstr) -> None:
         self.mtkcolor = mtkcolor
@@ -69,6 +75,12 @@ class ch_az(ch_rod):
 class ch_usp(ch_rod):
     def __init__(self, mtkcolor, posstr) -> None:
         super().__init__(mtkcolor, posstr)
+        self.pos = 4
+    
+    def setpos(self, pos):
+        if pos > 4.0: self.pos = 4; return
+        if pos < .5: self.pos = 0.5; return
+        self.pos = pos
 
     def __str__(self) -> str:
         return f"ch_usp\npos={self.pos}"
@@ -167,6 +179,12 @@ class Reactor():
 
 reactor = Reactor()
 
+#========================================
+#          RETARDED CODE
+#          END
+#========================================
+
+
 selsins = []
 
 selsins_x = []
@@ -242,7 +260,11 @@ import time
 
 app = Flask(__name__, static_url_path="")
 
-# PUBLIC ROUTES
+
+#========================================
+#            PUBLIC ROUTES
+#========================================
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -270,38 +292,16 @@ def calcshitgrad(n):
     elif n < 1: return interpolatecolor(c2, c1, (1 - n) * 2)
     else: return interpolatecolor(c2, c3, (n - 1) * 2)
 
+@app.route("/mtk2")
+def mtk_2():
+    sel = ""
+    for i in range(48):
+        sel += f"<option value='{i}'>{i}</option>"
+    return render_template("mtk2.html", mtk="<table border='#ccc' class='mtk mainelement'></table>", sel=sel)
+
 @app.route("/mtk")
 def mtk_():
     mtk = "<table border='#ccc' class='mtk mainelement'>"
-    y = -1
-    for i in reactor.reactor:
-        y += 1
-        mtk += "<tr>"
-        x = -1
-        for j in i:
-            x += 1
-            mtk += "<td style='background: "
-            if j == None:
-                mtk += "#ccc"
-                mtk += ";'></td>"
-            else:
-                """if j.mtkcolor == "w":
-                    mtk += "#fff"
-                elif j.mtkcolor == "y":
-                    mtk += "yellow"
-                elif j.mtkcolor == "g":
-                    mtk += "green"
-                else:
-                    mtk += "#ccc"""
-                c = "#ccc"
-                try:
-                    gg = calcshitgrad(sum(reactor_sim.reactor[y][x].Kcoef) / 7)
-                    c = f"rgb({gg[0]},{gg[1]},{gg[2]})"
-                except Exception as e:
-                    pass
-                mtk += c
-                mtk += f";'>{ j.posstr }</td>"
-        mtk += "</tr>"
     mtk += "</table>"
     
     return render_template("mtk.html", mtk=mtk)
@@ -336,7 +336,11 @@ def np_():
         <div class="lamp last { 'on' if len(selected_rods) >= 5 else '' }">5<br>огр<br>вверх</div>"""
     return render_template("np.html", np=s, nplamps=l)
 
-# API
+
+#========================================
+#              API ROUTES
+#========================================
+
 @app.route("/api/getchdata/<string:ch>")
 def api_getchdata(ch):
     return (f"=== REACTOR ===\n{reactor_sim.last_reactor_log}\n=== CH ===\n" + "").replace("\n", "<br>")
@@ -372,6 +376,41 @@ def api_getmtk():
                     pass
                 mtk += c
                 mtk += f";'>{ j.posstr }</td>"
+        mtk += "</tr>"
+    return mtk
+
+@app.route("/api/getmtk2/<int:shit>")
+def api_getmtk2(shit):
+    w = 1100 / 48
+    h = 700 / 7
+    mtk = ""
+    for i in range(7):
+        mtk += "<tr>"
+        for j in range(48):
+            mtk += "<td style='background: "
+            if reactor.reactor[j] == None:
+                mtk += "#ccc"
+                mtk += f";'></td>"
+            else:
+                c = "#ccc"
+                kcoef = 0
+                try:
+                    kcoef = reactor_sim.reactor[shit][j].Kcoef[6 - i]
+                    gg = calcshitgrad(kcoef)
+                    c = f"rgb({gg[0]},{gg[1]},{gg[2]})"
+                except Exception as e:
+                    pass
+                mtk += c
+                if kcoef == 0:
+                    if i == 0:
+                        try:
+                            a = reactor_sim.reactor[shit][j]
+                            mtk += f"; display: flex; border:0;justify-content: center;'><div class='rod' style='transform: translateY({ (7 - a.block_len - a.bottom_pos) * h }px)'><div class='blk' style='height:{a.block_len * h}px'></div><div class='acc' style='height:{a.accel_len * h}px'></div></div></td>"
+                        except Exception as e:
+                            mtk += f";'></td>"
+                    mtk += f";'></td>"
+                else:
+                    mtk += f";'>{round(kcoef, 2)}</td>"
         mtk += "</tr>"
     return mtk
 
@@ -433,6 +472,13 @@ def api_npstartdown(): global np_joystick; np_joystick = 1; return ""
 @app.route("/api/npstopdown/")
 def api_npstopdown(): global np_joystick; np_joystick = 0; return ""
 
+
+#========================================
+#          SIMULATION THREAD
+#          ITS NAME IS HIGHLY
+#          MISLEADING
+#========================================
+
 is_main_running = True
 
 def SUZ_THREAD():
@@ -457,15 +503,19 @@ def SUZ_THREAD():
 
         # COPY SUZ POS
         for i in reactor_sim.rod_coords:
-            pos = reactor.reactor[i[1]][i[0]].pos
-            reactor_sim.reactor[i[1]][i[0]].bottom_pos = reactor_sim.mapval(pos, 0, 7, reactor_sim.reactor[i[1]][i[0]].bottom_max_out, reactor_sim.reactor[i[1]][i[0]].bottom_min_out)
+            pos = reactor.reactor[i[0]][i[1]].pos
+            reactor_sim.reactor[i[0]][i[1]].bottom_pos = reactor_sim.mapval(pos, 0, 7, reactor_sim.reactor[i[0]][i[1]].bottom_max_out, reactor_sim.reactor[i[0]][i[1]].bottom_min_out)
 
         # REACTOR SIM
         reactor_sim.updatesim()
 
+
+#========================================
+#         RUNNING THE APP
+#========================================
+
 Thread(target=SUZ_THREAD).start()
 
-# APP RUN
 try:
     app.run(debug=True)
     is_main_running = False
