@@ -376,7 +376,7 @@ def KMPC_1(TPower_1,GCN_n1,DRK_GCN_11,DRK_GCN_12,DRK_GCN_13,DRK_GCN_14,expense_G
     P_after_GCN = P_after_BS * 1.231
     T_in = 35.53483 * math.log(P_after_GCN/1e6) + 209.26655 - 10  # Температура на входе в реактор, °C
 
-    print(f"Расход воды через ГЦН: {m_water_after_BS:.2f} кг/с")
+    print(f"Расход воды через ГЦН: {m_water_after_BS * 3.6:.2f} т/ч")
     print(f"Температура воды на входе в реактора: {T_in:.2f} °C")
     print(f"Давление воды на входе в реактора: {P_after_GCN/1e6:.2f} МПа")
 
@@ -687,7 +687,7 @@ def KMPC_2(TPower_2,GCN_n2,DRK_GCN_21,DRK_GCN_22,DRK_GCN_23,DRK_GCN_24,expense_G
     P_after_GCN = P_after_BS * 1.231
     T_in = 35.53483 * math.log(P_after_GCN/1e6) + 209.26655 - 10  # Температура на входе в реактор, °C
 
-    print(f"Расход воды через ГЦН: {m_water_after_BS:.2f} кг/с")
+    print(f"Расход воды через ГЦН: {m_water_after_BS * 3.6:.2f} т/ч")
     print(f"Температура воды на входе в реактора: {T_in:.2f} °C")
     print(f"Давление воды на входе в реактора: {P_after_GCN/1e6:.2f} МПа")
 
