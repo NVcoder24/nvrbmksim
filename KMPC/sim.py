@@ -158,15 +158,15 @@ print(f"Давление на выходе из реактора: {p_out_reactor
 v_mix1 = G_total_water_1 / rho_mix_1  # Скорость потока смеси (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_out1 + 0.000221 * T_out1**2) #Вязкость
-Re = (rho_mix_1 * v_mix1 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_out1 + 0.000221 * T_out1**2) #Вязкость
+Re = (rho_mix_1 * v_mix1 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 elif Re>4000:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 # Потери давления (добавить для цикла ДЭ-ПЭ-БС-ГЦН)
 delta_p_pipe = lambda_pipe * (L / D) * (rho_mix_1 * v_mix1 ** 2) / 2
 if delta_p_pipe>p_out_reactor_1:
@@ -178,15 +178,15 @@ print(f"Давление смеси после труб: {p_after_pipes1 / 1e6:.
 v_mix2 = G_total_water_2 / rho_mix_2  # Скорость потока смеси (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_out2 + 0.000221 * T_out2**2) #Вязкость
-Re = (rho_mix_2 * v_mix2 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_out2 + 0.000221 * T_out2**2) #Вязкость
+Re = (rho_mix_2 * v_mix2 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 elif Re>4000:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 # Потери давления (добавить для цикла ДЭ-ПЭ-БС-ГЦН)
 delta_p_pipe = lambda_pipe * (L / D) * (rho_mix_2 * v_mix2 ** 2) / 2
 if delta_p_pipe>p_out_reactor_2:
@@ -364,15 +364,15 @@ a1_rho_water_KN2, a1_p_water1 = get_properties(T_cond1, 'water')
 v_mix1 = a1_q_KN2 / a1_rho_water_KN2  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_cond1 + 0.000221 * T_cond1**2) #Вязкость
-Re = (a1_rho_water_KN2 * v_mix1 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_cond1 + 0.000221 * T_cond1**2) #Вязкость
+Re = (a1_rho_water_KN2 * v_mix1 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (a1_rho_water_KN2 * v_mix1 ** 2) / 2
 if delta_p_pipe>a1_p_KN2:
     pass
@@ -384,15 +384,15 @@ a2_rho_water_KN2, a2_p_water1 = get_properties(T_cond2, 'water')
 v_mix2 = a2_q_KN2 / a2_rho_water_KN2  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_cond2 + 0.000221 * T_cond2**2) #Вязкость
-Re = (a2_rho_water_KN2 * v_mix2 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_cond2 + 0.000221 * T_cond2**2) #Вязкость
+Re = (a2_rho_water_KN2 * v_mix2 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (a2_rho_water_KN2 * v_mix2 ** 2) / 2
 if delta_p_pipe>a2_p_KN2:
     pass
@@ -524,15 +524,15 @@ a1_rho_water_PN, a1_p_water1 = get_properties(T_water_before_deaerator1, 'water'
 v_mix1 = m_feedwater_1 / a1_rho_water_PN  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_water_before_deaerator1 + 0.000221 * T_water_before_deaerator1**2) #Вязкость
-Re = (a1_rho_water_PN * v_mix1 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_water_before_deaerator1 + 0.000221 * T_water_before_deaerator1**2) #Вязкость
+Re = (a1_rho_water_PN * v_mix1 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (a1_rho_water_PN * v_mix1 ** 2) / 2
 if delta_p_pipe>p_deaerator1:
     a1_P_after_PN = p_deaerator1
@@ -544,15 +544,15 @@ a2_rho_water_PN, a2_p_water1 = get_properties(T_water_before_deaerator2, 'water'
 v_mix2 = m_feedwater_2 / a2_rho_water_PN  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_water_before_deaerator2 + 0.000221 * T_water_before_deaerator2**2) #Вязкость
-Re = (a2_rho_water_PN * v_mix2 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_water_before_deaerator2 + 0.000221 * T_water_before_deaerator2**2) #Вязкость
+Re = (a2_rho_water_PN * v_mix2 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (a2_rho_water_PN * v_mix2 ** 2) / 2
 if delta_p_pipe>p_deaerator2:
     a2_P_after_PN = p_deaerator2
@@ -573,15 +573,15 @@ rho_water_GCN1, a1_p_water1 = get_properties(T_feedwater_BS1, 'water')
 v_mix1 = m_water_after_BS1 / rho_water_GCN1  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_feedwater_BS1 + 0.000221 * T_feedwater_BS1**2) #Вязкость
-Re = (rho_water_GCN1 * v_mix1 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_feedwater_BS1 + 0.000221 * T_feedwater_BS1**2) #Вязкость
+Re = (rho_water_GCN1 * v_mix1 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (rho_water_GCN1 * v_mix1 ** 2) / 2
 if delta_p_pipe>a1_P_after_PN:
     P_after_BS1 = a1_P_after_PN
@@ -600,15 +600,15 @@ rho_water_GCN2, a2_p_water1 = get_properties(T_feedwater_BS2, 'water')
 v_mix2 = m_water_after_BS2 / rho_water_GCN2  # Скорость потока конденсата (м/с)
 L = 61  # Длина трубопровода (м)
 D = 0.325  # Диаметр труб (м)
-μ = 0.000183/(1 + 0.0337 * T_feedwater_BS2 + 0.000221 * T_feedwater_BS2**2) #Вязкость
-Re = (rho_water_GCN2 * v_mix1 * D)/μ #Расчёт критерия Рейнольдса
+mu = 0.000183/(1 + 0.0337 * T_feedwater_BS2 + 0.000221 * T_feedwater_BS2**2) #Вязкость
+Re = (rho_water_GCN2 * v_mix1 * D)/mu #Расчёт критерия Рейнольдса
 #Расчёт коэффициента трения от критерия Рейнольдса
 if Re==0:
     lambda_pipe = 0
 elif Re<2300:
     lambda_pipe = 64/Re
 else:
-    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(μ)))))**2)
+    lambda_pipe = 1/((-2*math.log10((0.01/(3.71 * D)) + (2.51/(Re * math.sqrt(mu)))))**2)
 delta_p_pipe = lambda_pipe * (L / D) * (rho_water_GCN2 * v_mix2 ** 2) / 2
 if delta_p_pipe>a2_P_after_PN:
     P_after_BS2 = a2_P_after_PN
