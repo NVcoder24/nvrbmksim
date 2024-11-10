@@ -55,6 +55,18 @@ ZPU_21 = 1
 ZPU_22 = 1
 ZPU_23 = 0
 
+#СК ТГ
+SK1_TG1 = True
+SK2_TG1 = True
+SK1_TG2 = True
+SK2_TG2 = True
+
+#Разгон ТГ
+RTG1 = True
+RTG2 = True
+alpha1 = 200
+alpha2 = 200
+
 # Функция для расчета плотности и давления
 def get_properties(T, phase):
     if phase == 'water':
@@ -132,11 +144,11 @@ else:
 p_out_reactor_1 = nominal_pressure * (G_total_water_1 / G_water_nominal1) * ((TPower_1 + 0.01)/3200e6)
 T_out1 = 35.53483 * math.log(p_out_reactor_1/1e6) + 209.26655
 T_out1 = max(T_out1,ambient_temp)
-x_steam_1 = (TPower_1 * 4.767e-5) / 1e6 * 0.955 #Паросодержание, массовые доли (+ поправочный коэффициент)
+x_steam_1 = (TPower_1 * 4.767e-5) / 1e6 * 0.775 #Паросодержание, массовые доли (+ поправочный коэффициент)
 p_out_reactor_2 = nominal_pressure * (G_total_water_2 / G_water_nominal2) * ((TPower_2 + 0.01)/3200e6)
 T_out2 = 35.53483 * math.log(p_out_reactor_2/1e6) + 209.26655
 T_out2 = max(T_out2,ambient_temp)
-x_steam_2 = (TPower_2 * 4.767e-5) / 1e6 * 0.955 #Паросодержание, массовые доли (+ поправочный коэффициент)
+x_steam_2 = (TPower_2 * 4.767e-5) / 1e6 * 0.775 #Паросодержание, массовые доли (+ поправочный коэффициент)
 
 
 # 2. Выход пароводяной смеси из реактора
@@ -229,7 +241,22 @@ print(f"Острый пар на СПП-2: {q_steam_SPP2:.2f} кг/с")
 
 # 5. Поступление пара на ТГ
 #ТГ-1
+#Разгон ротора ТГ-1
+#Скелет, доработаю чуть позже
+if RTG1 == True:
+    v_rotor1 = alpha1 * DT
+else:
+    pass
+if RTG2 == True:
+    v_rotor2 = alpha2 * DT
+else:
+    pass
+print(f"Обороты ротора ТГ-1:  {v_rotor1}")
+print(f"Обороты ротора ТГ-2:  {v_rotor2}")
+
 #ЦВД
+A_steam_q_steam1_CVD = q_steam1 * 340000
+A_steam_q_steam2_CVD = q_steam2 * 340000
 #На перегрев в СПП-1
 a1_steam_out_1 = 0.1 * q_steam1
 #Для подогрев в деаэратор
@@ -294,6 +321,23 @@ q_steam2 = q_steam2 - (a2_steam_out_5 + a2_steam_out_6 + a2_steam_out_7)
 #Pвыход ЦНД
 P_CND2 = 0.0023 * p_bs2
 T_CND2 = 35.53483 * math.log(P_CND2/1e6) + 209.26655
+A_steam_q_steam1_CND = q_steam1 * 575000
+A_steam_q_steam2_CND = q_steam2 * 575000
+A_total1 = A_steam_q_steam1_CVD + A_steam_q_steam1_CND
+A_total2 = A_steam_q_steam2_CVD + A_steam_q_steam2_CND
+
+if SK1_TG1 and SK2_TG1 and RTG1 == True:
+    N_1 = 0.003*A_total1 + 6.88
+    N_TG1 = (A_total1 - N_1)/1e6
+else:
+    N_TG1 = 0
+if SK1_TG2 and SK2_TG2 and RTG2 == True:
+    N_2 = 0.003*A_total2 + 6.88
+    N_TG2 = (A_total2 - N_2)/1e6
+else:
+    N_TG2 = 0
+print(f"Мощность ТГ-1:  {N_TG1:.2f}")
+print(f"Мощность ТГ-2:  {N_TG2:.2f}")
 
 # 6. Конденсация пара ТГ-1
 #Подогреватели низкого давления
