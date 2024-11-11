@@ -292,7 +292,7 @@ T_CVD2 = 35.53483 * math.log(P_CVD2/1e6) + 209.26655
 
 #Вибрация подшипников
 # Параметры турбины К-500-65/3000
-m = 190000  # масса ротора, кг (примерное значение)
+m = 190000  # масса ротора, кг
 k1 = 1e8*(1 - 210e-06*(T_CVD1 - 20)) # жёсткость системы, Н/м ТГ-1
 k2 = 1e8*(1 - 210e-06*(T_CVD1 - 20)) # жёсткость системы, Н/м ТГ-2
 c01 = 1e4*(1 - 0.05*(T_CVD1 - 20))*(1 + 1e-06*(P_CVD1 - nominal_pressure)) # начальный коэффициент демпфирования, Н/(м/с) ТГ-1
@@ -326,55 +326,64 @@ resonance_amplification2 = 1 + alpha_resonance2 * math.exp(-((omega_exc2 - omega
 # Учет температурного эффекта на жесткость и демпфирование
 temperature_effect1 = 1 + gamma_temp1 * T_CVD1
 temperature_effect2 = 1 + gamma_temp2 * T_CVD2
-# Функция для расчета силы аэродинамического воздействия
+# Дифференциальные уравнения для системы
 # Дифференциальные уравнения для системы
 def bearing_vibration(t, y, c0, c1, F0, k, delta_lubrication, temperature_effect, beta_turbulence, omega_exc, resonance_amplification, A_aero):
     x, x_dot = y
-    
     # Модификация коэффициентов
     damping = (c0 + c1 * abs(x) ** n) * delta_lubrication * temperature_effect * beta_turbulence
     stiffness = k * temperature_effect
-    
     # Внешняя сила с учетом резонанса
     F_ext = F0 * math.cos(omega_exc * t) * resonance_amplification
-    
-    # Аэродинамическая сила (предположим, что она зависит от текущей скорости)
+    # Аэродинамическая сила
     F_aero = A_aero * x_dot
-    
     # Уравнение движения
     x_ddot = (F_ext + F_aero - damping * x_dot - stiffness * x) / m
     return [x_dot, x_ddot]
+# Метод Рунге-Кутта 4-го порядка (RK4)
+def runge_kutta_4(func, y0, t_eval, *args):
+    y = np.zeros((len(t_eval), len(y0)))
+    y[0] = y0
+    dt = t_eval[1] - t_eval[0]
+    for i in range(1, len(t_eval)):
+        k1 = np.array(func(t_eval[i-1], y[i-1], *args)) * dt
+        k2 = np.array(func(t_eval[i-1] + 0.5 * dt, y[i-1] + 0.5 * k1, *args)) * dt
+        k3 = np.array(func(t_eval[i-1] + 0.5 * dt, y[i-1] + 0.5 * k2, *args)) * dt
+        k4 = np.array(func(t_eval[i-1] + dt, y[i-1] + k3, *args)) * dt
+        y[i] = y[i-1] + (k1 + 2*k2 + 2*k3 + k4) / 6
+    return y
 # Начальные условия
-x0 = 0.01     # начальное смещение (м)
+x0 = 0.005  # начальное смещение (м)
 x_dot0 = 0.0  # начальная скорость (м/с)
 y0 = [x0, x_dot0]
 # Время моделирования
-t_span = (0, 20) #Тут надо вместо 20 поставить DT, чтобы считал для конкретного времени
-t_eval = np.linspace(*t_span, 1000)
-# Решение системы
-sol1 = solve_ivp(bearing_vibration, t_span, y0, t_eval=t_eval, args=(c01, c11, F01, k1, delta_lubrication1, temperature_effect1, beta_turbulence1, omega_exc1, resonance_amplification1, A_aero1))
-sol2 = solve_ivp(bearing_vibration, t_span, y0, t_eval=t_eval, args=(c02, c12, F02, k2, delta_lubrication2, temperature_effect2, beta_turbulence2, omega_exc2, resonance_amplification2, A_aero2))
+DT = 20  # примерное время моделирования
+t_eval = np.linspace(0, DT, 1000)
+# Решение системы с методом Рунге-Кутта 4-го порядка
+sol1 = runge_kutta_4(bearing_vibration, y0, t_eval, c01, c11, F01, k1, delta_lubrication1, temperature_effect1, beta_turbulence1, omega_exc1, resonance_amplification1, A_aero1)
+sol2 = runge_kutta_4(bearing_vibration, y0, t_eval, c02, c12, F02, k2, delta_lubrication2, temperature_effect2, beta_turbulence2, omega_exc2, resonance_amplification2, A_aero2)
 # Получение результатов из sol1 и sol2
-time = sol1.t  # Время
-displacement1 = sol1.y[0]  # Смещение для первого набора параметров
-velocity1 = sol1.y[1]  # Скорость для первого набора параметров
-displacement2 = sol2.y[0]  # Смещение для второго набора параметров
-velocity2 = sol2.y[1]  # Скорость для второго набора параметров
-# Теперь можно выводить или сохранять результаты
+# Вычисления с использованием Рунге-Кутта
+time = t_eval  # Время
+displacement1 = sol1[:, 0]  # Смещение для первого набора параметров
+velocity1 = sol1[:, 1]  # Скорость для первого набора параметров
+displacement2 = sol2[:, 0]  # Смещение для второго набора параметров
+velocity2 = sol2[:, 1]  # Скорость для второго набора параметров
+# Вывод результатов для каждого целого времени
 for t, d1, v1, d2, v2 in zip(time, displacement1, velocity1, displacement2, velocity2):
     if float(t).is_integer():  # Проверка, если t целое число (например, 1.0, 2.0 и т.д.)
         print(f"Время: {t:.2f} с, Смещение 1: {d1:.4f} м, Скорость 1: {v1:.4f} м/с, Смещение 2: {d2:.4f} м, Скорость 2: {v2:.4f} м/с")
 # Графики результатов для тестов (очень красиво :З)
 # График смещения
 plt.subplot(2, 1, 1)  # 2 строки, 1 колонка, график 1
-plt.plot(sol1.t, sol1.y[0], label='Смещение x(t)')
+plt.plot(t_eval, sol1[:, 0], label='Смещение x(t)')
 plt.xlabel('Время (с)')
 plt.ylabel('Смещение (м)')
 plt.legend()
 plt.grid()
 # График скорости
 plt.subplot(2, 1, 2)  # 2 строки, 1 колонка, график 2
-plt.plot(sol1.t, sol1.y[1], label='Скорость x\'(t)', color='orange')
+plt.plot(t_eval, sol1[:, 1], label='Скорость x\'(t)', color='orange')
 plt.xlabel('Время (с)')
 plt.ylabel('Скорость (м/с)')
 plt.legend()
