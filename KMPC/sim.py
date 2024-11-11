@@ -1,4 +1,7 @@
 import math
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
 
 # Константы
 global T_crit,R_steam,nominal_pressure,ambient_temp
@@ -242,17 +245,23 @@ print(f"Острый пар на СПП-2: {q_steam_SPP2:.2f} кг/с")
 # 5. Поступление пара на ТГ
 #ТГ-1
 #Разгон ротора ТГ-1
-#Скелет, доработаю чуть позже
+DT = 14.87 #Просто пример, надо будет поменять
 if RTG1 == True:
     v_rotor1 = alpha1 * DT
+    #Частота ротора
+    f1 = (v_rotor1*1)/60
 else:
     pass
 if RTG2 == True:
     v_rotor2 = alpha2 * DT
+    #Частота ротора
+    f2 = (v_rotor2*1)/60
 else:
     pass
-print(f"Обороты ротора ТГ-1:  {v_rotor1}")
-print(f"Обороты ротора ТГ-2:  {v_rotor2}")
+print(f"Обороты ротора ТГ-1:  {v_rotor1:.2f} об/мин")
+print(f"Обороты ротора ТГ-2:  {v_rotor2:.2f} об/мин")
+print(f"Частота ТГ-1:  {f1:.2f} Гц")
+print(f"Частота ТГ-2:  {f2:.2f} Гц")
 
 #ЦВД
 A_steam_q_steam1_CVD = q_steam1 * 340000
@@ -280,6 +289,98 @@ q_steam2 = q_steam2 - (a2_steam_out_1 + a2_steam_out_2 + a2_steam_out_3 + a2_ste
 #Pвыход ЦВД
 P_CVD2 = 0.293 * p_bs2
 T_CVD2 = 35.53483 * math.log(P_CVD2/1e6) + 209.26655
+
+#Вибрация подшипников
+# Параметры турбины К-500-65/3000
+m = 190000  # масса ротора, кг (примерное значение)
+k1 = 1e8*(1 - 210e-06*(T_CVD1 - 20)) # жёсткость системы, Н/м ТГ-1
+k2 = 1e8*(1 - 210e-06*(T_CVD1 - 20)) # жёсткость системы, Н/м ТГ-2
+c01 = 1e4*(1 - 0.05*(T_CVD1 - 20))*(1 + 1e-06*(P_CVD1 - nominal_pressure)) # начальный коэффициент демпфирования, Н/(м/с) ТГ-1
+c02 = 1e4*(1 - 0.05*(T_CVD1 - 20))*(1 + 1e-06*(P_CVD1 - nominal_pressure)) # начальный коэффициент демпфирования, Н/(м/с) ТГ-2
+c11 = 1e3*(1 - 0.001*(T_CVD1 - 20)) # нелинейный коэффициент демпфирования, Н/(м/с)^(n) ТГ-1
+c12 = 1e3*(1 - 0.001*(T_CVD1 - 20)) # нелинейный коэффициент демпфирования, Н/(м/с)^(n) ТГ-2
+if v_rotor1<1500:
+    n = 2      # степень нелинейности
+else:
+    n = 3
+F01 = 2.5e3*(1 + 0.001*(T_CVD1 - 20))*(1 + 0.95*(q_steam1/800)) # амплитуда внешней возмущающей силы, Н ТГ-1
+F02 = 2.5e3*(1 + 0.001*(T_CVD1 - 20))*(1 + 0.95*(q_steam1/800)) # амплитуда внешней возмущающей силы, Н ТГ-2
+omega_exc1 = 2 * math.pi * 50  # частота возмущающей силы, рад/с ТГ-1
+omega_res1 = (k1/m)**(1/2)  # синхронная частота вращения ротора, рад/с ТГ-2
+omega_exc2 = 2 * math.pi * 50  # частота возмущающей силы, рад/с ТГ-1
+omega_res2 = (k2/m)**(1/2)  # синхронная частота вращения ротора, рад/с ТГ-2
+# Дополнительные параметры
+alpha_resonance1 = 1.5*(1 + 0.001*(T_CVD1 - 20))*(1 + 1e-07*(P_CVD1 - nominal_pressure))*(1 + 0.001*(q_steam1 - 800))    # усиление при приближении к резонансу ТГ-1
+alpha_resonance2 = 1.5*(1 + 0.001*(T_CVD2 - 20))*(1 + 1e-07*(P_CVD2 - nominal_pressure))*(1 + 0.001*(q_steam2 - 800))    # усиление при приближении к резонансу ТГ-2
+beta_turbulence1 = 1.1*(1 + 0.001*(T_CVD1 - 20))*(1 + 0.001*(q_steam1 - 800))    # коэффициент для учета турбулентности ТГ-1
+beta_turbulence2 = 1.1*(1 + 0.001*(T_CVD2 - 20))*(1 + 0.001*(q_steam2 - 800))    # коэффициент для учета турбулентности ТГ-2
+gamma_temp1 = 0.001*(1 + 0.001*(T_CVD1 - 20))       # температурный коэффициент для жесткости и демпфирования ТГ-1
+gamma_temp2 = 0.001*(1 + 0.001*(T_CVD2 - 20))       # температурный коэффициент для жесткости и демпфирования ТГ-2
+delta_lubrication1 = 0.7*(1 + 0.001*(T_CVD1 - 20))*(1 + 1e-07*(P_CVD1 - nominal_pressure))  # коэффициент ухудшения смазки ТГ-1
+delta_lubrication2 = 0.7*(1 + 0.001*(T_CVD2 - 20))*(1 + 1e-07*(P_CVD2 - nominal_pressure))  # коэффициент ухудшения смазки ТГ-2
+A_aero1 = 0.05*(1 + 0.01*(T_CVD1 - 20))*(1 + 1e-07*(P_CVD1 - nominal_pressure))*(1 + 0.001*(q_steam1 - 800))            # коэффициент для моделирования аэродинамических и гидродинамических сил ТГ-1
+A_aero2 = 0.05*(1 + 0.01*(T_CVD2 - 20))*(1 + 1e-07*(P_CVD2 - nominal_pressure))*(1 + 0.001*(q_steam2 - 800))            # коэффициент для моделирования аэродинамических и гидродинамических сил ТГ-2
+# Функция резонансного усиления
+resonance_amplification1 = 1 + alpha_resonance1 * math.exp(-((omega_exc1 - omega_res1) / 10) ** 2)
+resonance_amplification2 = 1 + alpha_resonance2 * math.exp(-((omega_exc2 - omega_res2) / 10) ** 2)
+# Учет температурного эффекта на жесткость и демпфирование
+temperature_effect1 = 1 + gamma_temp1 * T_CVD1
+temperature_effect2 = 1 + gamma_temp2 * T_CVD2
+# Функция для расчета силы аэродинамического воздействия
+# Дифференциальные уравнения для системы
+def bearing_vibration(t, y, c0, c1, F0, k, delta_lubrication, temperature_effect, beta_turbulence, omega_exc, resonance_amplification, A_aero):
+    x, x_dot = y
+    
+    # Модификация коэффициентов
+    damping = (c0 + c1 * abs(x) ** n) * delta_lubrication * temperature_effect * beta_turbulence
+    stiffness = k * temperature_effect
+    
+    # Внешняя сила с учетом резонанса
+    F_ext = F0 * math.cos(omega_exc * t) * resonance_amplification
+    
+    # Аэродинамическая сила (предположим, что она зависит от текущей скорости)
+    F_aero = A_aero * x_dot
+    
+    # Уравнение движения
+    x_ddot = (F_ext + F_aero - damping * x_dot - stiffness * x) / m
+    return [x_dot, x_ddot]
+# Начальные условия
+x0 = 0.01     # начальное смещение (м)
+x_dot0 = 0.0  # начальная скорость (м/с)
+y0 = [x0, x_dot0]
+# Время моделирования
+t_span = (0, 20) #Тут надо вместо 20 поставить DT, чтобы считал для конкретного времени
+t_eval = np.linspace(*t_span, 1000)
+# Решение системы
+sol1 = solve_ivp(bearing_vibration, t_span, y0, t_eval=t_eval, args=(c01, c11, F01, k1, delta_lubrication1, temperature_effect1, beta_turbulence1, omega_exc1, resonance_amplification1, A_aero1))
+sol2 = solve_ivp(bearing_vibration, t_span, y0, t_eval=t_eval, args=(c02, c12, F02, k2, delta_lubrication2, temperature_effect2, beta_turbulence2, omega_exc2, resonance_amplification2, A_aero2))
+# Получение результатов из sol1 и sol2
+time = sol1.t  # Время
+displacement1 = sol1.y[0]  # Смещение для первого набора параметров
+velocity1 = sol1.y[1]  # Скорость для первого набора параметров
+displacement2 = sol2.y[0]  # Смещение для второго набора параметров
+velocity2 = sol2.y[1]  # Скорость для второго набора параметров
+# Теперь можно выводить или сохранять результаты
+for t, d1, v1, d2, v2 in zip(time, displacement1, velocity1, displacement2, velocity2):
+    if float(t).is_integer():  # Проверка, если t целое число (например, 1.0, 2.0 и т.д.)
+        print(f"Время: {t:.2f} с, Смещение 1: {d1:.4f} м, Скорость 1: {v1:.4f} м/с, Смещение 2: {d2:.4f} м, Скорость 2: {v2:.4f} м/с")
+# Графики результатов для тестов (очень красиво :З)
+# График смещения
+plt.subplot(2, 1, 1)  # 2 строки, 1 колонка, график 1
+plt.plot(sol1.t, sol1.y[0], label='Смещение x(t)')
+plt.xlabel('Время (с)')
+plt.ylabel('Смещение (м)')
+plt.legend()
+plt.grid()
+# График скорости
+plt.subplot(2, 1, 2)  # 2 строки, 1 колонка, график 2
+plt.plot(sol1.t, sol1.y[1], label='Скорость x\'(t)', color='orange')
+plt.xlabel('Время (с)')
+plt.ylabel('Скорость (м/с)')
+plt.legend()
+plt.grid()
+plt.tight_layout()  # Для улучшения размещения графиков
+plt.show()
 
 #Сепаратор-пароперегреватель-1 (перегрев пара с ЦВД)
 q_steam_SPP1_total = q_steam_SPP1 + a1_steam_out_1
