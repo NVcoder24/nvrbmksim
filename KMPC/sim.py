@@ -263,8 +263,8 @@ print(f"Частота ТГ-1:  {f1:.2f} Гц")
 print(f"Частота ТГ-2:  {f2:.2f} Гц")
 
 #ЦВД
-A_steam_q_steam1_CVD = q_steam1 * 340000
-A_steam_q_steam2_CVD = q_steam2 * 340000
+A_steam_q_steam1_CVD = q_steam1 * 335000
+A_steam_q_steam2_CVD = q_steam2 * 335000
 #На перегрев в СПП-1
 a1_steam_out_1 = 0.1 * q_steam1
 #Для подогрев в деаэратор
@@ -325,7 +325,6 @@ resonance_amplification2 = 1 + alpha_resonance2 * math.exp(-((omega_exc2 - omega
 # Учет температурного эффекта на жесткость и демпфирование
 temperature_effect1 = 1 + gamma_temp1 * T_CVD1
 temperature_effect2 = 1 + gamma_temp2 * T_CVD2
-# Дифференциальные уравнения для системы
 # Дифференциальные уравнения для системы
 def bearing_vibration(t, y, c0, c1, F0, k, delta_lubrication, temperature_effect, beta_turbulence, omega_exc, resonance_amplification, A_aero):
     x, x_dot = y
@@ -430,8 +429,8 @@ q_steam2 = q_steam2 - (a2_steam_out_5 + a2_steam_out_6 + a2_steam_out_7)
 #Pвыход ЦНД
 P_CND2 = 0.0023 * p_bs2
 T_CND2 = 35.53483 * math.log(P_CND2/1e6) + 209.26655
-A_steam_q_steam1_CND = q_steam1 * 575000
-A_steam_q_steam2_CND = q_steam2 * 575000
+A_steam_q_steam1_CND = q_steam1 * 573000
+A_steam_q_steam2_CND = q_steam2 * 573000
 A_total1 = A_steam_q_steam1_CVD + A_steam_q_steam1_CND
 A_total2 = A_steam_q_steam2_CVD + A_steam_q_steam2_CND
 
