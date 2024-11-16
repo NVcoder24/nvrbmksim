@@ -57,15 +57,15 @@ ZPU_21 = 1
 ZPU_22 = 1
 ZPU_23 = 0
 
-#СК ТГ
-SK1_TG1 = True
-SK2_TG1 = True
-SK1_TG2 = True
-SK2_TG2 = True
+#СРК ТГ (либо 0, либо 1)
+SK1_TG1 = 1
+SK2_TG1 = 1
+SK1_TG2 = 1
+SK2_TG2 = 1
 
-#Разгон ТГ
-RTG1 = True
-RTG2 = True
+#Разгон ТГ (либо 0, либо 1)
+RTG1 = 1
+RTG2 = 1
 alpha1 = 200
 alpha2 = 200
 
@@ -245,13 +245,13 @@ print(f"Острый пар на СПП-2: {q_steam_SPP2:.2f} кг/с")
 #ТГ-1
 #Разгон ротора ТГ-1
 DT = 14.87 #Просто пример, надо будет поменять
-if RTG1 == True:
+if RTG1 == 1:
     v_rotor1 = alpha1 * DT
     #Частота ротора
     f1 = (v_rotor1*1)/60
 else:
     pass
-if RTG2 == True:
+if RTG2 == 1:
     v_rotor2 = alpha2 * DT
     #Частота ротора
     f2 = (v_rotor2*1)/60
@@ -434,12 +434,12 @@ A_steam_q_steam2_CND = q_steam2 * 573000
 A_total1 = A_steam_q_steam1_CVD + A_steam_q_steam1_CND
 A_total2 = A_steam_q_steam2_CVD + A_steam_q_steam2_CND
 
-if SK1_TG1 and SK2_TG1 and RTG1 == True:
+if SK1_TG1 and SK2_TG1 and RTG1 == 1:
     N_1 = 0.003*A_total1 + 6.88
     N_TG1 = (A_total1 - N_1)/1e6
 else:
     N_TG1 = 0
-if SK1_TG2 and SK2_TG2 and RTG2 == True:
+if SK1_TG2 and SK2_TG2 and RTG2 == 1:
     N_2 = 0.003*A_total2 + 6.88
     N_TG2 = (A_total2 - N_2)/1e6
 else:
