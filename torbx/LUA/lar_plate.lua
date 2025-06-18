@@ -1,0 +1,1 @@
+workspace.devices.lar_plate:PivotTo(CFrame.new(-23.624404385635856, 2.717184742219471, 28.864883466062068) * CFrame.fromEulerAngles(0, math.rad(33.553), 0) * CFrame.fromEulerAngles(math.rad(-5), 0, 0))

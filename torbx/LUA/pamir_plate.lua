@@ -1,0 +1,1 @@
+workspace.devices.pamir_plate:PivotTo(CFrame.new(-23.28308244155996, 3.485679749732478, 29.491881190784703) * CFrame.fromEulerAngles(0, math.rad(33.553), 0) * CFrame.fromEulerAngles(math.rad(85), 0, 0))
