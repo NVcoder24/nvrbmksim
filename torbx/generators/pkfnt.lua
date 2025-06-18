@@ -1,0 +1,50 @@
+local pkfnt = {}
+
+pkfnt.numfnt = {
+[''] = {false,false,false,false,false,false,false},
+['0'] = {true,true,true,false,true,true,true},
+['1'] = {false,false,true,false,false,true,false},
+['2'] = {true,false,true,true,true,false,true},
+['3'] = {true,false,true,true,false,true,true},
+['4'] = {false,true,true,true,false,true,false},
+['5'] = {true,true,false,true,false,true,true},
+['6'] = {true,false,true,true,true,false,true},
+['7'] = {true,false,true,false,false,true,false},
+['8'] = {true,true,true,true,true,true,true},
+['9'] = {true,true,true,true,false,true,true},
+}
+
+pkfnt.charfnt = {
+[''] = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false},
+['M'] = {false,false,true,false,true,true,false,true,false,false,true,true,false,false,false,false},
+['T'] = {true,true,false,true,false,false,true,false,false,false,false,false,false,false,false,false},
+['Д'] = {false,false,false,false,true,false,false,true,false,false,false,true,true,false,false,true},
+['H'] = {false,false,true,false,true,true,false,true,false,false,false,false,false,false,true,true},
+['П'] = {true,true,true,false,true,true,false,true,false,false,false,false,false,false,false,false},
+['A'] = {true,true,true,false,true,true,false,true,false,false,false,false,false,false,true,true},
+['Я'] = {true,true,true,false,true,false,false,true,false,false,false,false,true,false,true,true},
+['R'] = {false,false,true,false,false,true,false,false,false,false,false,true,false,true,true,false},
+['K'] = {false,false,true,false,false,true,false,false,false,false,false,true,false,true,true,false},
+['X'] = {false,false,false,false,false,false,false,false,false,false,true,true,true,true,false,false},
+['N'] = {false,false,true,false,true,true,false,true,false,false,true,false,false,true,false,false},
+['S'] = {true,true,true,false,false,false,false,true,true,true,false,false,false,false,true,true},
+['P'] = {true,true,true,false,true,true,false,false,false,false,false,false,false,false,true,true},
+['G'] = {true,true,true,false,false,true,false,true,true,true,false,false,false,false,false,true},
+['t'] = {false,false,false,true,false,false,true,false,false,true,false,false,false,false,true,true},
+['+'] = {false,false,false,true,false,false,true,false,false,false,false,false,false,false,true,true},
+['-'] = {false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true},
+['/'] = {false,false,false,true,false,false,false,false,false,false,false,false,false,false,true,true},
+['\\'] = {false,false,false,false,false,false,true,false,false,false,false,false,false,false,true,true},
+['1'] = {false,false,false,false,true,false,false,true,false,false,false,false,false,false,false,false},
+['2'] = {true,true,false,false,true,true,false,false,true,true,false,false,false,false,true,true},
+['3'] = {true,true,false,false,true,false,false,true,true,true,false,false,false,false,true,true},
+['4'] = {false,false,true,false,true,false,false,true,false,false,false,false,false,false,true,true},
+['5'] = {true,true,true,false,false,false,false,true,true,true,false,false,false,false,true,true},
+['6'] = {true,true,true,false,false,true,false,true,true,true,false,false,false,false,true,true},
+['7'] = {true,true,false,false,true,false,false,true,false,false,false,false,false,false,false,false},
+['8'] = {true,true,true,false,true,true,false,true,true,true,false,false,false,false,true,true},
+['9'] = {true,true,true,false,true,false,false,true,true,true,false,false,false,false,true,true},
+['0'] = {true,true,true,false,true,true,false,true,true,true,false,false,false,false,false,false},
+}
+
+return pkfnt
