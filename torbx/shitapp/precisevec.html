@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreciseVec</title>
+    <script
+  src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+  crossorigin="anonymous"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: "PT Sans", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            line-height: 1;
+            color: #dfdfdf;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .main {
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: grid;
+            grid-template-columns: 300px auto;
+            grid-template-rows: 30px auto;
+        }
+
+        .main .sidebar {
+            grid-column: 1;
+            grid-row: 2;
+            background: #181818;
+        }
+
+        .main .viewport {
+            grid-column: 2;
+            grid-row: 2;
+            background: #1e1e1e;
+        }
+
+        .main .top {
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 1;
+            display: flex;
+            justify-content: space-between;
+            background: #141414;
+            padding: 0 20px;
+        }
+
+        .main .top .left {
+            display: flex;
+            align-items: center;
+        }
+
+        .main .top .left span {
+            font-size: 10px;
+            margin-left: 5px;
+            color: #8d8d8d;
+        }
+
+        .main .top .right {
+            display: flex;
+        }
+
+        .main .top .right button {
+            background: transparent;
+            border: 0;
+            padding: 0 5px;
+            color: #797979;
+        }
+
+        .main .top .right .selected {
+            color: #dfdfdf;
+            background: #1e1e1e;
+        }
+
+        .main .top .right button:hover {
+            color: #dfdfdf;
+        }
+
+        .create {
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .create .box {
+            row-gap: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background: #1e1e1e;
+            padding: 15px 20px;
+        }
+
+        .create button {
+            padding: 6px 20px;
+            background: #1f4fbe;
+            border: 1px solid #193e92;
+            border-radius: 5px;
+        }
+
+        .create button:hover {
+            padding: 6px 20px;
+            background: #1a429e;
+            border: 1px solid #132f71;
+            border-radius: 5px;
+        }
+
+        .create .input {
+            display: flex;
+            align-items: center;
+            column-gap: 5px;
+        }
+
+        .create .input img {
+            width: 20px;
+        }
+
+        .create .input .param {
+            width: 70px;
+        }
+
+        .create .input input {
+            width: 60px;
+            padding: 0 5px;
+            background: #181818;
+            border: none;
+            height: 25px;
+        }
+
+        .sidebar {
+            display: grid;
+            grid-template-rows: auto 400px 100px;
+        }
+
+        .sidebar header {
+            background: #141414;
+            display: flex;
+            align-items: center;
+            height: 30px;
+            padding: 0 10px;
+            column-gap: 10px;
+            border-top: 1px solid #1d1d1d;
+        }
+
+        .sidebar header img {
+            width: 10px;
+            transform: rotate(180deg);
+            opacity: .7;
+        }
+
+        .sidebar .add .list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            column-gap: 10px;
+            row-gap: 10px;
+            height: 69px;
+        }
+
+        .sidebar .add .list button {
+            background: transparent;
+            border: none;
+        }
+
+        .sidebar .add .list button:hover {
+            filter: brightness(.8);
+        }
+
+        .sidebar .add .list img {
+            width: 40px;
+        }
+
+        .sidebar .objects .background {
+            display: flex;
+            padding: 0 10px;
+            justify-items: center;
+            align-items: center;
+            column-gap: 5px;
+            height: 40px;
+        }
+
+        .sidebar .objects .background button {
+            border: none;
+            background: transparent;
+            height: 30px;
+            width: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar .objects .background button:hover {
+            border: #292929 1px solid;
+        }
+
+        .sidebar .objects .background img {
+            width: 20px;
+        }
+
+        .sidebar .objects .background .selected {
+            background: #292929;
+        }
+
+        .sidebar .objects .list {    
+            background: #141414;
+            width: 280px;
+            height: 320px;
+            overflow: auto;
+            max-height: 320px;
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+
+        .sidebar .objects .list .item {
+            display: grid;
+            padding: 0 5px;
+            height: 40px;
+            grid-template-columns: 40px auto 90px;
+            align-items: center;
+        }
+
+        .sidebar .objects .list .item .img {
+
+        }
+
+        .sidebar .objects .list .item .img img {
+            width: 30px;
+        }
+
+        .sidebar .objects .list .item p {
+
+        }
+
+        .sidebar .objects .list .item .right {
+            display: flex;
+        }
+
+        .sidebar .objects .list .item .right button {
+            border: none;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+        }
+
+        .sidebar .objects .list .item .right button img {
+            width: 20px;
+        }
+
+        .sidebar .objects .list .item .right .del img {
+            filter: grayscale(1) brightness(6) brightness(0.2);
+        }
+
+        .sidebar .objects .list .item .right .down img {
+            filter: brightness(0.2);
+        }
+
+        .sidebar .objects .list .item .right .up img {
+            filter: brightness(0.2);
+        }
+
+        .sidebar .objects .list .item .right .del img {
+            filter: grayscale(1) brightness(6) brightness(0.2);
+        }
+
+        .sidebar .objects .list .item .right .down:hover img {
+            filter: brightness(0.7);
+        }
+
+        .sidebar .objects .list .item .right .up:hover img {
+            filter: brightness(0.7);
+        }
+
+        .sidebar .objects .list .item .right .del:hover img {
+            filter: brightness(0.7);
+        }
+
+        .sidebar .edit > div {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            max-height: calc(100vh - 581px);
+            row-gap: 10px;
+            overflow: auto;
+        }
+
+        .sidebar .edit #edit_noselected {
+            height: calc(100% - 51px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar .edit #edit_noselected p {
+            color: #494949;
+        }
+
+        .sidebar .edit hr {
+            border: 1px solid #252525
+        }
+
+        .sidebar .edit .inputtext, .inputpos, .inputcheckbox, .inputnum, .inputcolor, .inputfont {
+            display: flex;
+            align-items: center;
+            column-gap: 5px;
+        }
+
+        .sidebar .edit .inputtext input {
+            padding: 0 5px;
+            background: #232323;
+            border: 1px solid #2f2f2f;
+            border-radius: 5px;
+            height: 20px;
+        }
+
+        .sidebar .edit .inputfont select {
+            padding: 0 5px;
+            background: #232323;
+            border: 1px solid #2f2f2f;
+            border-radius: 5px;
+            height: 20px;
+        }
+
+        .sidebar .edit .inputpos {
+            flex-wrap: wrap;
+            row-gap: 4px;
+        }
+
+        .sidebar .edit .inputpos p:first-child {
+            width: 100%;
+        }
+
+        .sidebar .edit .inputpos input {
+            padding: 0 5px;
+            width: 50px;
+            background: #232323;
+            border: 1px solid #2f2f2f;
+            border-radius: 5px;
+            height: 20px;
+        }
+
+        .sidebar .edit .inputpos img {
+            width: 18px;
+        }
+
+        .sidebar .edit .inputpos .rot {
+            transform: rotate(90deg);
+            margin-left: 10px;
+        }
+
+        .sidebar .edit .inputcolor input {
+            background: none;
+            border: none;
+            width: 25px;
+            height: 28px;
+        }
+
+        .sidebar .edit .inputnum input {
+            padding: 0 5px;
+            width: 60px;
+            background: #232323;
+            border: 1px solid #2f2f2f;
+            border-radius: 5px;
+            height: 20px;
+        }
+
+        .sidebar .edit .inputcheckbox input {
+            background: #232323;
+            border: 1px solid #2f2f2f;
+            border-radius: 5px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .viewport {
+            max-width: 100%;
+            max-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .addfont {
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .addfont .box {
+            row-gap: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            background: #1e1e1e;
+            padding: 15px 20px;
+        }
+
+        .addfont button {
+            padding: 6px 20px;
+            background: #1f4fbe;
+            border: 1px solid #193e92;
+            border-radius: 5px;
+        }
+
+        .addfont button:hover {
+            padding: 6px 20px;
+            background: #1a429e;
+            border: 1px solid #132f71;
+            border-radius: 5px;
+        }
+
+        .addfont .input {
+            display: flex;
+            align-items: center;
+            column-gap: 5px;
+        }
+
+        .addfont .input .param {
+            width: 80px;
+        }
+
+        .addfont .input input {
+            width: 300px;
+            padding: 0 5px;
+            background: #181818;
+            border: none;
+            height: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="top">
+            <div class="left">PreciseVec <span>1.0.0</span></div>
+            <div class="right">
+                <button class="selected">PreciseVec</button>
+                <button onclick="document.location = 'https://www.youtube.com/watch?v=q-Y0bnx6Ndw'">LampLabel</button>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="edit">
+                <header>
+                    <img src="bleach.png">
+                    <p>Редактировать</p>
+                </header>
+                <div id="edit_noselected">
+                    <p>Ничего не выбрано</p>
+                </div>
+                <div id="edit_box" style="display: none;">
+                    <div class="inputtext">
+                        <p>Название: </p>
+                        <input type="text" id="edit_box_name">
+                    </div>
+                    <hr>
+                    <div class="inputpos">
+                        <p>Положение: </p>
+                        <img src="arrows.png">
+                        <input id="edit_box_posx" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                        <img class="rot" src="arrows.png">
+                        <input id="edit_box_posy" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                    </div>
+                    <div class="inputpos">
+                        <p>Размер: </p>
+                        <img src="arrows.png">
+                        <input id="edit_box_sizex" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                        <img class="rot" src="arrows.png">
+                        <input id="edit_box_sizey" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                    </div>
+                    <hr>
+                    <div class="inputcheckbox">
+                        <p>Заливка: </p>
+                        <input type="checkbox" id="edit_box_fill">
+                    </div>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_box_fillcolor">
+                    </div>
+                    <hr>
+                    <div class="inputcheckbox">
+                        <p>Обводка: </p>
+                        <input type="checkbox" id="edit_box_stroke">
+                    </div>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_box_strokecolor">
+                    </div>
+                    <div class="inputnum">
+                        <p>Толщина: </p>
+                        <input type="number" id="edit_box_strokesize" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                </div>
+                <div id="edit_circle" style="display: none;">
+                    <div class="inputtext">
+                        <p>Название: </p>
+                        <input type="text" id="edit_circle_name">
+                    </div>
+                    <hr>
+                    <div class="inputpos">
+                        <p>Положение (центр): </p>
+                        <img src="arrows.png">
+                        <input id="edit_circle_posx" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                        <img class="rot" src="arrows.png">
+                        <input id="edit_circle_posy" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Радиус: </p>
+                        <input type="number" id="edit_circle_r" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <hr>
+                    <div class="inputcheckbox">
+                        <p>Заливка: </p>
+                        <input type="checkbox" id="edit_circle_fill">
+                    </div>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_circle_fillcolor">
+                    </div>
+                    <hr>
+                    <div class="inputcheckbox">
+                        <p>Обводка: </p>
+                        <input type="checkbox" id="edit_circle_stroke">
+                    </div>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_circle_strokecolor">
+                    </div>
+                    <div class="inputnum">
+                        <p>Толщина: </p>
+                        <input type="number" id="edit_circle_strokesize" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                </div>
+                <div id="edit_text" style="display: none;">
+                    <div class="inputtext">
+                        <p>Название: </p>
+                        <input type="text" id="edit_text_name">
+                    </div>
+                    <hr>
+                    <div class="inputpos">
+                        <p>Положение (центр): </p>
+                        <img src="arrows.png">
+                        <input id="edit_text_posx" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                        <img class="rot" src="arrows.png">
+                        <input id="edit_text_posy" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Размер: </p>
+                        <input type="number" id="edit_text_size" step="0.01" value="0">
+                    </div>
+                    <hr>
+                    <div class="inputfont">
+                        <p>Шрифт: </p>
+                        <select id="edit_text_font" class="font_update"></select>
+                    </div>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_text_color">
+                    </div>
+                </div>
+                <div id="edit_lscale" style="display: none;">
+                    <div class="inputtext">
+                        <p>Название: </p>
+                        <input type="text" id="edit_lscale_name">
+                    </div>
+                    <hr>
+                    <div class="inputpos">
+                        <p>Положение: </p>
+                        <img src="arrows.png">
+                        <input id="edit_lscale_posx" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                        <img class="rot" src="arrows.png">
+                        <input id="edit_lscale_posy" type="number" step="0.01" value="0">
+                        <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Длина: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Отступ слева: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Отступ справа: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <hr>
+                    <div class="inputnum">
+                        <p>Начало измерения: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0">
+                    </div>
+                    <div class="inputnum">
+                        <p>Предел измерения: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0">
+                    </div>
+                    <div class="inputnum">
+                        <p>Цена деления: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0">
+                    </div>
+                    <hr>
+                    <div class="inputnum">
+                        <p>Отступ: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputcheckbox">
+                        <p>Больших: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputcheckbox">
+                        <p>Средние: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputcheckbox">
+                        <p>Маленькие: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputnum">
+                        <p>Длина больших: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Длина средних: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Длина маленьких: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Толщина больших: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Толщина средних: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Толщина маленьких: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <hr>
+                    <div class="inputnum">
+                        <p>Большая каждые: </p>
+                        <input type="number" id="edit_lscale_size" step="1" value="0" min="0">
+                    </div>
+                    <div class="inputnum">
+                        <p>Средняя каждые: </p>
+                        <input type="number" id="edit_lscale_size" step="1" value="0" min="0">
+                    </div>
+                    <div class="inputnum">
+                        <p>Маленькая каждые: </p>
+                        <input type="number" id="edit_lscale_size" step="1" value="0" min="0">
+                    </div>
+                    <hr>
+                    <div class="inputcheckbox">
+                        <p>Текст на больших: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputnum">
+                        <p>Размер на больших: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Отступ на больших: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputcheckbox">
+                        <p>Текст на средних: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputnum">
+                        <p>Размер на средних: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Отступ на средних: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputcheckbox">
+                        <p>Текст на маленьких: </p>
+                        <input type="checkbox" id="edit_lscale_stroke">
+                    </div>
+                    <div class="inputnum">
+                        <p>Размер на маленьких: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <div class="inputnum">
+                        <p>Отступ на маленьких: </p>
+                        <input type="number" id="edit_lscale_size" step="0.01" value="0"> <p>мм</p>
+                    </div>
+                    <hr>
+                    <div class="inputcolor">
+                        <p>Цвет: </p>
+                        <input type="color" id="edit_lscale_color">
+                    </div>
+                    <div class="inputfont">
+                        <p>Шрифт: </p>
+                        <select id="edit_lscale_font" class="font_update"></select>
+                    </div>
+
+                </div>
+                <div id="edit_rscale" style="display: none;">
+
+                </div>
+            </div>
+            <div class="objects">
+                <header>
+                    <img src="bleach.png">
+                    <p>Объекты</p>
+                </header>
+                <div class="list" id="objs"></div>
+                <div class="background">
+                    <p>Фон на превью: </p>
+                    <button class="selected" id="bgset0"><img src="white.png"></button>
+                    <button id="bgset1"><img src="black.png"></button>
+                    <button id="bgset2"><img src="tcb.png"></button>
+                </div>
+            </div>
+            <div class="add">
+                <header>
+                    <img src="bleach.png">
+                    <p>Добавить</p>
+                </header>
+                <div class="list">
+                    <button id="add_box">
+                        <img src="objbox.png">
+                    </button>
+                    <button id="add_circle">
+                        <img src="objcircle.png">
+                    </button>
+                    <button id="add_font">
+                        <img src="addfont.png">
+                    </button>
+                    <button id="add_text">
+                        <img src="objtext.png">
+                    </button>
+                    <button id="add_lscale">
+                        <img src="objlscale.png">
+                    </button>
+                    <button id="add_rscale">
+                        <img src="objrscale.png">
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="viewport" id="svgwrap"></div>
+        <div class="create" id="create_popup">
+            <div class="box">
+                <h2>Новый документ</h2>
+                <div class="input">
+                    <img src="arrows.png">
+                    <p class="param">Длина:</p>
+                    <input type="number" id="can_x" step="0.01" value="0" min="0">
+                    <p class="mu">мм</p>
+                </div>
+                <div class="input">
+                    <img src="arrows.png" style="transform: rotate(90deg);">
+                    <p class="param">Ширина:</p>
+                    <input type="number" id="can_y" step="0.01" value="0" min="0">
+                    <p class="mu">мм</p>
+                </div>
+                <button id="create_can">Готово</button>
+            </div>
+        </div>
+        <div class="addfont" id="addfont_popup" style="display: none;">
+            <div class="box">
+                <h2>Добавить шрифт</h2>
+                <div class="input">
+                    <p class="param">Путь к шрифту:</p>
+                    <input type="text" id="addfontpath">
+                </div>
+                <div class="input">
+                    <p class="param">Font face:</p>
+                    <input type="text" id="addfontface">
+                </div>
+                <button id="addfont_finish">Готово</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var num_boxes = 0;
+        var num_circles = 0;
+        var num_texts = 0;
+        var num_rscales = 0;
+        var num_lscales = 0;
+
+        var can_x = 0;
+        var can_y = 0;
+        var currbg = 0;
+
+        var curr_selected = -1;
+
+        function update_font_selectors() {
+            html = "<option value=''>Стандартный шрифт</option>";
+            for (let i = 0; i < fonts.length; i ++) {
+                html += `
+                <option value="${fonts[i]["face"]}">${fonts[i]["face"]}</option>
+                `;
+            }
+            $(".font_update").each(function (index) {
+                $(this).html(html);
+            });
+        }
+
+        function set_selected_font(id, font) {
+            $(id).val(font).change();
+        }
+
+        function updateall() {
+            drawobjs();
+            drawsvg();
+        }
+
+        function cbv(id) {
+            return $(id).is(":checked");
+        }
+
+        $("#edit_box_name").on("input", () => { objs[curr_selected]["name"] = $("#edit_box_name").val(); updateall(); });
+        $("#edit_box_posx").on("input", () => { objs[curr_selected]["posx"] = $("#edit_box_posx").val(); updateall(); });
+        $("#edit_box_posy").on("input", () => { objs[curr_selected]["posy"] = $("#edit_box_posy").val(); updateall(); });
+        $("#edit_box_sizex").on("input", () => { objs[curr_selected]["sizex"] = $("#edit_box_sizex").val(); updateall(); });
+        $("#edit_box_sizey").on("input", () => { objs[curr_selected]["sizey"] = $("#edit_box_sizey").val(); updateall(); });
+        $("#edit_box_fill").on("change", () => { objs[curr_selected]["fill"] = cbv("#edit_box_fill"); updateall(); });
+        $("#edit_box_fillcolor").on("input", () => { objs[curr_selected]["fillcolor"] = $("#edit_box_fillcolor").val(); updateall(); });
+        $("#edit_box_stroke").on("change", () => { objs[curr_selected]["stroke"] = cbv("#edit_box_stroke"); updateall(); });
+        $("#edit_box_strokecolor").on("input", () => { objs[curr_selected]["strokecolor"] = $("#edit_box_strokecolor").val(); updateall(); });
+        $("#edit_box_strokesize").on("input", () => { objs[curr_selected]["strokesize"] = $("#edit_box_strokesize").val(); updateall(); });
+
+        $("#edit_circle_name").on("input", () => { objs[curr_selected]["name"] = $("#edit_circle_name").val(); updateall(); });
+        $("#edit_circle_posx").on("input", () => { objs[curr_selected]["posx"] = $("#edit_circle_posx").val(); updateall(); });
+        $("#edit_circle_posy").on("input", () => { objs[curr_selected]["posy"] = $("#edit_circle_posy").val(); updateall(); });
+        $("#edit_circle_r").on("input", () => { objs[curr_selected]["r"] = $("#edit_circle_r").val(); updateall(); });
+        $("#edit_circle_fill").on("change", () => { objs[curr_selected]["fill"] = cbv("#edit_circle_fill"); updateall(); });
+        $("#edit_circle_fillcolor").on("input", () => { objs[curr_selected]["fillcolor"] = $("#edit_circle_fillcolor").val(); updateall(); });
+        $("#edit_circle_stroke").on("change", () => { objs[curr_selected]["stroke"] = cbv("#edit_circle_stroke"); updateall(); });
+        $("#edit_circle_strokecolor").on("input", () => { objs[curr_selected]["strokecolor"] = $("#edit_circle_strokecolor").val(); updateall(); });
+        $("#edit_circle_strokesize").on("input", () => { objs[curr_selected]["strokesize"] = $("#edit_circle_strokesize").val(); updateall(); });
+
+        $("#edit_text_name").on("input", () => { objs[curr_selected]["name"] = $("#edit_text_name").val(); updateall(); });
+        $("#edit_text_posx").on("input", () => { objs[curr_selected]["posx"] = $("#edit_text_posx").val(); updateall(); });
+        $("#edit_text_posy").on("input", () => { objs[curr_selected]["posy"] = $("#edit_text_posy").val(); updateall(); });
+        $("#edit_text_size").on("input", () => { objs[curr_selected]["size"] = $("#edit_text_size").val(); updateall(); });
+        $("#edit_text_font").on("input", () => { objs[curr_selected]["font"] = $("#edit_text_font").val(); updateall(); });
+        $("#edit_text_color").on("input", () => { objs[curr_selected]["color"] = $("#edit_text_color").val(); updateall(); });
+
+        function start_select(i) {
+            curr_selected = i;
+            $("#edit_noselected").css("display", "none");
+            $("#edit_box").css("display", "none");
+            $("#edit_circle").css("display", "none");
+            $("#edit_text").css("display", "none");
+            $("#edit_lscale").css("display", "none");
+            $("#edit_rscale").css("display", "none");
+            if (curr_selected == -1) {
+                $("#edit_noselected").css("display", "flex");
+            } else {
+                if (objs[curr_selected]["type"] == "box") {
+                    $("#edit_box_name").val(objs[curr_selected]["name"]);
+                    $("#edit_box_posx").val(objs[curr_selected]["posx"]);
+                    $("#edit_box_posy").val(objs[curr_selected]["posy"]);
+                    $("#edit_box_sizex").val(objs[curr_selected]["sizex"]);
+                    $("#edit_box_sizey").val(objs[curr_selected]["sizey"]);
+                    $("#edit_box_fill").prop('checked', objs[curr_selected]["fill"]);
+                    $("#edit_box_fillcolor").val(objs[curr_selected]["fillcolor"]);
+                    $("#edit_box_stroke").prop('checked', objs[curr_selected]["stroke"]);
+                    $("#edit_box_strokecolor").val(objs[curr_selected]["strokecolor"]);
+                    $("#edit_box_strokesize").val(objs[curr_selected]["strokesize"]);
+                    $("#edit_box").css("display", "flex");
+                }
+                if (objs[curr_selected]["type"] == "circle") {
+                    $("#edit_circle").css("display", "flex");
+                    $("#edit_circle_name").val(objs[curr_selected]["name"]);
+                    $("#edit_circle_posx").val(objs[curr_selected]["posx"]);
+                    $("#edit_circle_posy").val(objs[curr_selected]["posy"]);
+                    $("#edit_circle_r").val(objs[curr_selected]["r"]);
+                    $("#edit_circle_fill").prop('checked', objs[curr_selected]["fill"]);
+                    $("#edit_circle_fillcolor").val(objs[curr_selected]["fillcolor"]);
+                    $("#edit_circle_stroke").prop('checked', objs[curr_selected]["stroke"]);
+                    $("#edit_circle_strokecolor").val(objs[curr_selected]["strokecolor"]);
+                    $("#edit_circle_strokesize").val(objs[curr_selected]["strokesize"]);
+                }
+                if (objs[curr_selected]["type"] == "text") {
+                    $("#edit_text").css("display", "flex");
+                    $("#edit_text_name").val(objs[curr_selected]["name"]);
+                    $("#edit_text_posx").val(objs[curr_selected]["posx"]);
+                    $("#edit_text_posy").val(objs[curr_selected]["posy"]);
+                    $("#edit_text_size").val(objs[curr_selected]["size"]);
+                    set_selected_font("#edit_text_font", objs[curr_selected]["font"])
+                    $("#edit_text_color").val(objs[curr_selected]["color"]);
+                }
+                if (objs[curr_selected]["type"] == "lscale") {
+                    $("#edit_lscale").css("display", "flex");
+                }
+                if (objs[curr_selected]["type"] == "rscale") {
+                    $("#edit_rscale").css("display", "flex");
+                }
+            }
+        }
+
+        var fonts = [];
+
+        var objs = [];
+
+        function drawsvg() {
+            
+        }
+
+        function deleteobj(i) {
+            objs.splice(i, 1);
+            start_select(-1);
+            updateall();
+        }
+
+        function deletefont(i) {
+            fonts.splice(i, 1);
+            updateall();
+            update_font_selectors();
+        }
+
+        function moveobj(from, to) {
+            let f = objs.splice(from, 1)[0];
+            objs.splice(to, 0, f);
+        }
+
+        function movedownobj(i) {
+            if (i < objs.length - 1) {
+                moveobj(i, i + 1);
+                start_select(-1);
+            }
+            updateall();
+        }
+
+        function moveupobj(i) {
+            if (i > 0) {
+                moveobj(i, i - 1);
+                if (curr_selected == i) {
+                    start_select(curr_selected - 1);
+                }
+                if (curr_selected == i - 1) {
+                    start_select(curr_selected + 1);
+                }
+            }
+            updateall();
+        }
+
+        function drawobjs() {
+            let html = "";
+            for (let i = 0; i < fonts.length; i ++) {
+                html += `<div class="item">
+                        <div class="img">
+                            <img src="objfont.png">
+                        </div>
+                        <p onclick="start_select(${i});">${fonts[i]["face"]}</p>
+                        <div class="right" style="justify-content: flex-end;">
+                            <button class="del" onclick="deletefont(${i});"><img src="bin.png"></button>
+                        </div>
+                    </div>`;
+            }
+            for (let i = 0; i < objs.length; i ++) {
+                let img_src = "";
+                if (objs[i]["type"] == "box") img_src = "objbox.png";
+                if (objs[i]["type"] == "circle") img_src = "objcircle.png";
+                if (objs[i]["type"] == "text") img_src = "objtext.png";
+                if (objs[i]["type"] == "lscale") img_src = "objlscale.png";
+                if (objs[i]["type"] == "rscale") img_src = "objrscale.png";
+                let background = "rgba(0,0,0,0);";
+                if (curr_selected == i) background = "rgba(255,255,255,.05)";
+                html += `<div class="item" style="background: ${background}">
+                        <div class="img">
+                            <img src="${img_src}">
+                        </div>
+                        <p onclick="start_select(${i}); drawobjs();">${objs[i]["name"]}</p>
+                        <div class="right">
+                            <button class="del" onclick="deleteobj(${i}); drawobjs();"><img src="bin.png"></button>
+                            <button class="down" onclick="movedownobj(${i}); drawobjs();"><img src="rightarrow.png" style="transform: rotate(90deg);"></button>
+                            <button class="up" onclick="moveupobj(${i}); drawobjs();"><img src="rightarrow.png" style="transform: rotate(-90deg);"></button>
+                        </div>
+                    </div>`;
+            }
+            $("#objs").html(html);
+        }
+
+        function add_font() {
+            $("#addfont_popup").css("display", "flex");
+        }
+
+        function add_font_finish() {
+            fonts.push({
+                "path": $("#addfontpath").val(),
+                "face": $("#addfontface").val(),
+            });
+            update_font_selectors();
+            drawobjs();
+            drawsvg();
+            $("#addfont_popup").css("display", "none");
+        }
+
+        function add_box() {
+            num_boxes += 1;
+            objs.push({
+                "type": "box",
+                "name": `box #${num_boxes}`,
+                "posx": 0,
+                "posy": 0,
+                "sizex": 0,
+                "sizey": 0,
+                "fill": true,
+                "fillcolor": "#000000",
+                "stroke": false,
+                "strokecolor": "#000000",
+                "strokesize": 0,
+            });
+            drawobjs();
+            drawsvg();
+        }
+
+        function add_circle() {
+            num_circles += 1;
+            objs.push({
+                "type": "circle",
+                "name": `circle #${num_circles}`,
+                "posx": 0,
+                "posy": 0,
+                "r": 0,
+                "fill": true,
+                "fillcolor": "#000000",
+                "stroke": false,
+                "strokecolor": "#000000",
+                "strokesize": 0,
+            });
+            drawobjs();
+            drawsvg();
+        }
+
+        function add_text() {
+            num_texts += 1;
+            objs.push({
+                "type": "text",
+                "name": `text #${num_texts}`,
+                "posx": 0,
+                "posy": 0,
+                "font": "",
+                "color": "#000000",
+            });
+            drawobjs();
+            drawsvg();
+            update_font_selectors();
+        }
+
+        function add_lscale() {
+            num_lscales += 1;
+            objs.push({
+                "type": "lscale",
+                "name": `lscale #${num_lscales}`,
+                "posx": 0,
+                "posy": 0,
+                "l": 0,
+                "off_l": 0,
+                "off_r": 0,
+                "start": 0,
+                "add": 0,
+
+                "font": "",
+                "color": "#000000",
+            });
+            drawobjs();
+            drawsvg();
+        }
+
+        function add_rscale() {
+            num_rscales += 1;
+            objs.push({
+                "type": "rscale",
+                "name": `rscale #${num_rscales}`,
+            });
+            drawobjs();
+            drawsvg();
+        }
+
+        $("#add_box").click(() => { add_box(); });
+        $("#add_circle").click(() => { add_circle(); });
+        $("#add_font").click(() => { add_font(); });
+        $("#addfont_finish").click(() => { add_font_finish(); });
+        $("#add_text").click(() => { add_text(); });
+        $("#add_lscale").click(() => { add_lscale(); });
+        $("#add_rscale").click(() => { add_rscale(); });
+
+        function set_bg_0() {
+            if (currbg == 0) {
+                $("#bgset0").removeClass("selected");
+                currbg = -1;
+            } else {
+                $("#bgset0").addClass("selected");
+                $("#bgset1").removeClass("selected");
+                $("#bgset2").removeClass("selected");
+                currbg = 0;
+            }
+            update_bg();
+        }
+
+        function set_bg_1() {
+            if (currbg == 1) {
+                $("#bgset1").removeClass("selected");
+                currbg = -1;
+            } else {
+                $("#bgset0").removeClass("selected");
+                $("#bgset1").addClass("selected");
+                $("#bgset2").removeClass("selected");
+                currbg = 1;
+            }
+            update_bg();
+        }
+
+        function set_bg_2() {
+            if (currbg == 2) {
+                $("#bgset2").removeClass("selected");
+                currbg = -1;
+            } else {
+                $("#bgset0").removeClass("selected");
+                $("#bgset1").removeClass("selected");
+                $("#bgset2").addClass("selected");
+                currbg = 2;
+            }
+            update_bg();
+        }
+
+        $("#bgset0").click(() => { set_bg_0(); });
+        $("#bgset1").click(() => { set_bg_1(); });
+        $("#bgset2").click(() => { set_bg_2(); });
+
+        function update_bg() {
+            if (currbg == -1) {
+                $("#svg").css("background-image", "unset");
+            }
+
+            if (currbg == 0) {
+                $("#svg").css("background-image", "url('white.png')");
+            }
+
+            if (currbg == 1) {
+                $("#svg").css("background-image", "url('black.png')");
+            }
+
+            if (currbg == 2) {
+                $("#svg").css("background-image", "url('tcb.png')");
+            }
+        }
+
+        $("#create_can").click(() => {
+            if ($("#can_x").val() == 0) {
+                alert("Длина должна быть > 0!");
+                return;
+            }
+            if ($("#can_y").val() == 0) {
+                alert("Ширина должна быть > 0!");
+                return;
+            }
+            can_x = $("#can_x").val();
+            can_y = $("#can_y").val();
+            $("#svgwrap").html(`<svg width="${can_x}" height="${can_y}" version="1.1" xmlns="http://www.w3.org/2000/svg" id="svg" style="background-size: 20px;"></svg>`);
+            $("#create_popup").css("display", "none");
+            update_font_selectors();
+            update_bg();
+        });
+    </script>
+</body>
+</html>
